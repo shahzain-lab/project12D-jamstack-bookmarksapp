@@ -1,35 +1,73 @@
 const { ApolloServer, gql } = require('apollo-server-lambda')
+const faunadb = require("faunadb");
+const q = faunadb.query;
 
 const typeDefs = gql`
   type Query {
-    hello: String
-    allAuthors: [Author!]
-    author(id: Int!): Author
-    authorByName(name: String!): Author
+    bookmarks: [Bookmark!]
   }
-  type Author {
+  
+  type Mutation{
+    addBookmark(text: String!, url: String!): Bookmark
+    delBookmark(id: ID!): Bookmark
+  }
+
+  type Bookmark {
     id: ID!
-    name: String!
-    married: Boolean!
+    text: String!
+    url: String!
   }
 `
-
-const authors = [
-  { id: 1, name: 'Terry Pratchett', married: false },
-  { id: 2, name: 'Stephen King', married: true },
-  { id: 3, name: 'JK Rowling', married: false },
-]
+const client = new faunadb.Client({
+  secret: 'fnAEeQCYyEACSZR9s8Gtre4gU1G1-9n0yWYeR2rr'
+});
 
 const resolvers = {
   Query: {
-    hello: () => 'Hello, world!',
-    allAuthors: () => authors,
-    author: () => {},
-    authorByName: (root, args) => {
-      console.log('hihhihi', args.name)
-      return authors.find((author) => author.name === args.name) || 'NOTFOUND'
+    bookmarks: async() => {
+      try{
+        const results = await client.query(
+          q.Map(
+          q.Paginate(q.Match(q.Index('all_bookmarks'))),
+          q.Lambda((x) => q.Get(x))
+          )
+        )
+        const data = results.data.map(d => {
+          return {
+            id: d.ref.id,
+            text: d.data.text,
+            url: d.data.url
+          }
+        })
+        return data
+      }catch(err){
+        return err.toString()
+      }
     },
   },
+  Mutation: {
+    addBookmark: async(_, {text, url}) => {
+      try{
+        const results = await client.query(
+          q.Create(q.Collection('bookmarks'),
+          {data: {text: text, url: url}})
+        )
+        return results.data
+      }catch(err){
+        return err.toString()
+      }
+    },
+    delBookmark: async(_, {id}) => {
+      try{
+        const results = await client.query(
+          q.Delete(q.Ref(q.Collection('bookmarks'), id))
+        )
+        return results.data
+      }catch(err){
+        return err.toString();
+      }
+    }
+  }
 }
 
 const server = new ApolloServer({
