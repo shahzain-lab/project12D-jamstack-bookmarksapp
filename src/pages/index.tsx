@@ -30,6 +30,7 @@ export default function Home() {
     })
   }
 
+
   const handleUpdate = (id: string) => {
     const upt = data.bookmarks.filter((item: Bookmark) => item.id === id);
     upt.filter((item: Bookmark) => {
@@ -58,38 +59,52 @@ export default function Home() {
             <Box
               key={d.id}
               sx={{
-                boxShadow: '2px 2px 3px rgba(0, 0, 0, 0.2)',
+                boxShadow: '-1px 2px 9px -2px rgba(0,0,0,0.69)',
                 background: 'white',
-                display: 'flex',
                 width: '40%',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                borderRadius: '10px'
+                textAlign: 'center',
+                borderRadius: '10px',
               }}
               p={2}
               margin={2}
             >
-              <Typography variant="body1">{d.text}</Typography>
+              <Typography variant="body2"
+                sx={{
+                  backgroundColor: '#cccccc',
+                  padding: '5px 0',
+                  borderRadius: '5px'
+                }}>{d.url}</Typography>
 
-              <Box>
-                <Button
-                  onClick={() => handleDelete(d.id)}
-                >
-                  <DeleteIcon color="secondary" />
-                </Button>
-                <Button
-                  onClick={() => handleUpdate(d.id)}
-                >
-                  <EditIcon color="secondary" />
-                </Button>
-                <a
-                  href={`${d.url}`}
-                  target="_blank"
-                >
-                  <Button>
-                    <CallMadeIcon color="secondary" />
+              <Box
+                key={d.id}
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
+                <Typography variant="body1">{d.text}</Typography>
+
+                <Box>
+                  <Button
+                    onClick={() => handleDelete(d.id)}
+                  >
+                    <DeleteIcon color="secondary" />
                   </Button>
-                </a>
+                  <Button
+                    onClick={() => handleUpdate(d.id)}
+                  >
+                    <EditIcon color="secondary" />
+                  </Button>
+                  <a
+                    href={`${d.url}`}
+                    target="_blank"
+                  >
+                    <Button>
+                      <CallMadeIcon color="secondary" />
+                    </Button>
+                  </a>
+                </Box>
               </Box>
             </Box>
           ))}
