@@ -10,6 +10,7 @@ const typeDefs = gql`
   type Mutation{
     addBookmark(text: String!, url: String!): Bookmark
     delBookmark(id: ID!): Bookmark
+    uptBookmark(id: ID!, text: String!, url: String!): Bookmark
   }
 
   type Bookmark {
@@ -17,9 +18,10 @@ const typeDefs = gql`
     text: String!
     url: String!
   }
-`
+`;
+
 const client = new faunadb.Client({
-  secret: 'fnAEeQCYyEACSZR9s8Gtre4gU1G1-9n0yWYeR2rr'
+  secret: process.env.FAUNA_ADMIN_SECRET
 });
 
 const resolvers = {
@@ -65,6 +67,19 @@ const resolvers = {
         return results.data
       }catch(err){
         return err.toString();
+      }
+    },
+    uptBookmark: async(_, {id, text, url}) => {
+      try{
+        const results = await client.query(
+          q.Update(
+            q.Ref(q.Collection("bookmarks"), id),
+            {data: {text: text, url: url}}
+          )
+        )
+        return results.data;
+      }catch(err){
+        return err.toString()
       }
     }
   }

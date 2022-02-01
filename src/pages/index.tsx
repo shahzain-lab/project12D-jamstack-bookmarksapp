@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useContext } from "react"
 import { useQuery } from '@apollo/client';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -10,6 +10,7 @@ import CallMadeIcon from '@mui/icons-material/CallMade';
 import Model from "../components/Model";
 import { useMutation } from '@apollo/client';
 import { DELETE_BOOKMARK } from '../graphql/types';
+import { AppContext } from "../context/AppContext";
 
 interface Bookmark {
   id: string
@@ -19,7 +20,8 @@ interface Bookmark {
 
 export default function Home() {
   const { loading, error, data } = useQuery(GET_BOOKMARKS);
-  const [delBookmark] = useMutation(DELETE_BOOKMARK)
+  const [delBookmark] = useMutation(DELETE_BOOKMARK);
+  const { setFields, setIsUpdate, setIsOpen } = useContext(AppContext);
 
   const handleDelete = (id: string) => {
     delBookmark({
@@ -28,7 +30,14 @@ export default function Home() {
     })
   }
 
-
+  const handleUpdate = (id: string) => {
+    const upt = data.bookmarks.filter((item: Bookmark) => item.id === id);
+    upt.filter((item: Bookmark) => {
+      setFields({ id: item.id, text: item.text, url: item.url });
+    })
+    setIsOpen(true)
+    setIsUpdate(true)
+  }
 
   return (
     <div>
@@ -69,7 +78,7 @@ export default function Home() {
                   <DeleteIcon color="secondary" />
                 </Button>
                 <Button
-                // onClick={() => handleDelete(d.id)}
+                  onClick={() => handleUpdate(d.id)}
                 >
                   <EditIcon color="secondary" />
                 </Button>

@@ -26,3 +26,11 @@ export const DELETE_BOOKMARK = gql`
     }
 }
 `;
+
+export const UPT_BOOKMARK = gql`
+ mutation uptBookmark($id: ID!, $text: String!, $url: String!){
+     uptBookmark(id: $id, text: $text, url: $url){
+         text
+     }
+ }
+`;
